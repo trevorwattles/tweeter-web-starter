@@ -37,12 +37,6 @@ const Register = () => {
     );
   };
 
-  const registerOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key == "Enter" && !checkSubmitButtonStatus()) {
-      doRegister();
-    }
-  };
-
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     handleImageFile(file);
@@ -132,6 +126,9 @@ const Register = () => {
     return [user, FakeData.instance.authToken];
   };
 
+  // 1. You can delete the old registerOnEnter function!
+
+  // 2. Updated Factory
   const inputFieldFactory = () => {
     return (
       <>
@@ -141,7 +138,8 @@ const Register = () => {
           placeholder="First Name"
           value={firstName}
           onChange={setFirstName}
-          onKeyDown={registerOnEnter}
+          checkSubmitButtonStatus={checkSubmitButtonStatus}
+          doAction={doRegister} // Assuming your submit function is called doRegister
         />
 
         <AuthenticationField
@@ -150,7 +148,8 @@ const Register = () => {
           placeholder="Last Name"
           value={lastName}
           onChange={setLastName}
-          onKeyDown={registerOnEnter}
+          checkSubmitButtonStatus={checkSubmitButtonStatus}
+          doAction={doRegister}
         />
 
         <AuthenticationField
@@ -159,7 +158,8 @@ const Register = () => {
           placeholder="name@example.com"
           value={alias}
           onChange={setAlias}
-          onKeyDown={registerOnEnter}
+          checkSubmitButtonStatus={checkSubmitButtonStatus}
+          doAction={doRegister}
         />
 
         <div className="mb-3">
@@ -170,26 +170,27 @@ const Register = () => {
             placeholder="Password"
             value={password}
             onChange={setPassword}
-            onKeyDown={registerOnEnter}
+            checkSubmitButtonStatus={checkSubmitButtonStatus}
+            doAction={doRegister}
           />
         </div>
+
         <div className="form-floating mb-3">
           <input
             type="file"
             className="d-inline-block py-5 px-4 form-control bottom"
             id="imageFileInput"
-            onKeyDown={registerOnEnter}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !checkSubmitButtonStatus())
+                doRegister();
+            }}
             onChange={handleFileChange}
           />
 
           {imageUrl.length > 0 && (
             <>
               <label htmlFor="imageFileInput">User Image</label>
-              <img
-                src={imageUrl}
-                className="img-thumbnail mt-2"
-                alt="User preview"
-              />
+              <img src={imageUrl} className="img-thumbnail mt-2" alt="" />
             </>
           )}
         </div>

@@ -7,11 +7,18 @@ interface Props {
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
-  onKeyDown: React.KeyboardEventHandler<HTMLInputElement>;
   inputClassName?: string;
+  checkSubmitButtonStatus: () => boolean;
+  doAction: () => Promise<void>;
 }
 
 const AuthenticationField = (props: Props) => {
+  const loginOrReigisterOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key == "Enter" && !props.checkSubmitButtonStatus()) {
+      props.doAction();
+    }
+  };
+
   return (
     <div className="form-floating">
       <input
@@ -20,7 +27,7 @@ const AuthenticationField = (props: Props) => {
         id={props.id}
         placeholder={props.placeholder ?? props.label}
         value={props.value}
-        onKeyDown={props.onKeyDown}
+        onKeyDown={loginOrReigisterOnEnter}
         onChange={(e) => props.onChange(e.target.value)}
       />
       <label htmlFor={props.id}>{props.label}</label>
