@@ -93,6 +93,7 @@ const Login = (props: Props) => {
             value={password}
             onChange={setPassword}
             onKeyDown={loginOnEnter}
+            inputClassName="bottom"
           />
         </div>
       </>
