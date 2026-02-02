@@ -1,9 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useContext } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { ToastType } from "../toaster/Toast";
-import { ToastActionsContext } from "../toaster/ToastContexts";
 import type { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { useMessageActions } from "../toaster/MessageHooks";
 
 type OAuthProvider = "Facebook" | "Google" | "Twitter" | "LinkedIn" | "GitHub";
 
@@ -21,16 +19,10 @@ const tooltipIdByProvider: Record<OAuthProvider, string> = {
 };
 
 const OAuth = ({ provider, icon }: OAuthProps) => {
-  const { displayToast } = useContext(ToastActionsContext);
+  const { displayInfoMessage } = useMessageActions();
 
   const displayInfoMessageWithDarkBackground = (message: string): void => {
-    displayToast(
-      ToastType.Info,
-      message,
-      3000,
-      undefined,
-      "text-white bg-primary",
-    );
+    displayInfoMessage(message, 3000, "text-white bg-primary");
   };
 
   return (
