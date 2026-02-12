@@ -8,6 +8,8 @@ import { Buffer } from "buffer";
 import AuthenticationField from "../../AuthenticationField/AuthenticationField";
 import { useMessageActions } from "../../toaster/MessageHooks";
 import { useUserInfoActions } from "../../userInfo/UserInfoHooks";
+import { AuthView } from "../../../presenter/AuthPresenter";
+import { RegisterPresenter } from "../../../presenter/RegisterPresenter";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -24,15 +26,26 @@ const Register = () => {
   const { updateUserInfo } = useUserInfoActions();
   const { displayErrorMessage } = useMessageActions();
 
+  const view: AuthView = {
+    setIsLoading: setIsLoading,
+    displayErrorMessage: displayErrorMessage,
+    updateUserInfo: updateUserInfo,
+    navigateTo: navigate,
+  };
+
+  const [presenter] = useState(() => new RegisterPresenter(view));
+
   const checkSubmitButtonStatus = (): boolean => {
-    return (
-      !firstName ||
-      !lastName ||
-      !alias ||
-      !password ||
-      !imageUrl ||
-      !imageFileExtension
-    );
+    return presenter.checkSubmitButtonStatus({
+      firstName,
+      lastName,
+      alias,
+      password,
+      imageUrl,
+      imageFileExtension,
+      imageBytes,
+      rememberMe,
+    });
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -77,27 +90,16 @@ const Register = () => {
   };
 
   const doRegister = async () => {
-    try {
-      setIsLoading(true);
-
-      const [user, authToken] = await register(
-        firstName,
-        lastName,
-        alias,
-        password,
-        imageBytes,
-        imageFileExtension,
-      );
-
-      updateUserInfo(user, user, authToken, rememberMe);
-      navigate(`/feed/${user.alias}`);
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to register user because of exception: ${error}`,
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    await presenter.doRegister({
+      firstName,
+      lastName,
+      alias,
+      password,
+      imageUrl,
+      imageFileExtension,
+      imageBytes,
+      rememberMe,
+    });
   };
 
   const register = async (
