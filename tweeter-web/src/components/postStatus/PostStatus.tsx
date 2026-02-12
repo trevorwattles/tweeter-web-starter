@@ -3,6 +3,10 @@ import { useState } from "react";
 import { AuthToken, Status } from "tweeter-shared";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo } from "../userInfo/UserInfoHooks";
+import {
+  PostStatusPresenter,
+  PostStatusView,
+} from "../../presenter/PostStatusPresenter";
 
 const PostStatus = () => {
   const { displayInfoMessage, displayErrorMessage, deleteMessage } =
@@ -12,39 +16,19 @@ const PostStatus = () => {
   const [post, setPost] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const submitPost = async (event: React.MouseEvent) => {
-    event.preventDefault();
-
-    var postingStatusToastId = "";
-
-    try {
-      setIsLoading(true);
-      postingStatusToastId = displayInfoMessage("Posting status...", 0);
-
-      const status = new Status(post, currentUser!, Date.now());
-
-      await postStatus(authToken!, status);
-
-      setPost("");
-      displayInfoMessage("Status posted!", 2000);
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to post the status because of exception: ${error}`,
-      );
-    } finally {
-      deleteMessage(postingStatusToastId);
-      setIsLoading(false);
-    }
+  const view: PostStatusView = {
+    setIsLoading: setIsLoading,
+    displayErrorMessage: displayErrorMessage,
+    displayInfoMessage: displayInfoMessage,
+    clearMessage: deleteMessage,
+    setPost: setPost,
   };
 
-  const postStatus = async (
-    authToken: AuthToken,
-    newStatus: Status,
-  ): Promise<void> => {
-    // Pause so we can see the logging out message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
+  const [presenter] = useState(() => new PostStatusPresenter(view));
 
-    // TODO: Call the server to post the status
+  const submitPost = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    await presenter.submitPost(post, currentUser!, authToken!);
   };
 
   const clearPost = (event: React.MouseEvent) => {
@@ -53,7 +37,7 @@ const PostStatus = () => {
   };
 
   const checkButtonStatus: () => boolean = () => {
-    return !post.trim() || !authToken || !currentUser;
+    return presenter.checkButtonStatus(post, authToken, currentUser);
   };
 
   return (
