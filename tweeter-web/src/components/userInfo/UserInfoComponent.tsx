@@ -33,7 +33,7 @@ const UserInfo = () => {
     setIsLoading: setIsLoading,
     displayInfoMessage: displayInfoMessage,
     displayErrorMessage: displayErrorMessage,
-    clearMessage: deleteMessage,
+    deleteMessage: deleteMessage,
     setDisplayedUser: setDisplayedUser,
   };
 

@@ -1,9 +1,10 @@
 import { User, AuthToken } from "tweeter-shared";
-import { UserService } from "../model.service/UserService";
+import { UserQueryPresenter } from "./UserQueryPresenter"; // Updated import
+import { View } from "./Presenter";
+import { AuthService } from "../model.service/AuthService";
 
-export interface AuthView {
+export interface AuthView extends View {
   setIsLoading: (isLoading: boolean) => void;
-  displayErrorMessage: (message: string) => void;
   updateUserInfo: (
     user: User,
     displayedUser: User,
@@ -12,22 +13,29 @@ export interface AuthView {
   ) => void;
   navigateTo: (url: string) => void;
 }
-export abstract class AuthPresenter<TForm> {
-  protected view: AuthView;
 
-  private userService: UserService;
+export abstract class AuthPresenter<
+  T,
+  V extends AuthView,
+> extends UserQueryPresenter<V> {
+  protected authService = new AuthService();
 
-  protected constructor(view: AuthView) {
-    this.view = view;
-    this.userService = new UserService();
+  protected async doAuthOperation(
+    description: string,
+    rememberMe: boolean,
+    operation: () => Promise<[User, AuthToken]>,
+    onSuccess: (user: User) => void,
+  ) {
+    this.view.setIsLoading(true);
+
+    await this.doFailureReportingOperation(async () => {
+      const [user, authToken] = await operation();
+      this.view.updateUserInfo(user, user, authToken, rememberMe);
+      onSuccess(user);
+    }, description);
+
+    this.view.setIsLoading(false);
   }
 
-  public async getUser(
-    authToken: AuthToken,
-    alias: string,
-  ): Promise<User | null> {
-    return this.userService.getUser(authToken, alias);
-  }
-
-  public abstract checkSubmitButtonStatus(form: TForm): boolean;
+  public abstract checkSubmitButtonStatus(form: T): boolean;
 }

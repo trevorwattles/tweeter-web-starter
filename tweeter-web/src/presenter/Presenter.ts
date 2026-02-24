@@ -10,13 +10,14 @@ export interface messageView extends View {
 export abstract class Presenter<V extends View> {
   private _view: V;
 
-  protected constructor(view: V) {
+  public constructor(view: V) {
     this._view = view;
   }
 
   protected get view() {
     return this._view;
   }
+
   protected async doFailureReportingOperation(
     operation: () => Promise<void>,
     operationDescription: string,

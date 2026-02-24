@@ -19,7 +19,7 @@ const PostStatus = () => {
     setIsLoading: setIsLoading,
     displayErrorMessage: displayErrorMessage,
     displayInfoMessage: displayInfoMessage,
-    clearMessage: deleteMessage,
+    deleteMessage: deleteMessage,
     setPost: setPost,
   };
 

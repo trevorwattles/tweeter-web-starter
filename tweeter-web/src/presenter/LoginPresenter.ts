@@ -1,4 +1,3 @@
-import { AuthService } from "../model.service/AuthService";
 import { AuthPresenter, AuthView } from "./AuthPresenter";
 
 export interface LoginForm {
@@ -8,39 +7,20 @@ export interface LoginForm {
   originalUrl?: string;
 }
 
-export class LoginPresenter extends AuthPresenter<LoginForm> {
-  private service: AuthService;
-
-  public constructor(view: AuthView) {
-    super(view);
-    this.service = new AuthService();
-  }
-
+export class LoginPresenter extends AuthPresenter<LoginForm, AuthView> {
   public checkSubmitButtonStatus(form: LoginForm): boolean {
     return !form.alias || !form.password;
   }
 
   public async doLogin(form: LoginForm) {
-    try {
-      this.view.setIsLoading(true);
-
-      const [user, authToken] = await this.service.login(
-        form.alias,
-        form.password,
-      );
-      this.view.updateUserInfo(user, user, authToken, form.rememberMe);
-
-      if (!!form.originalUrl) {
-        this.view.navigateTo(form.originalUrl);
-      } else {
-        this.view.navigateTo(`/feed/${user.alias}`);
-      }
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to log user in because of exception: ${error}`,
-      );
-    } finally {
-      this.view.setIsLoading(false);
-    }
+    await this.doAuthOperation(
+      "log user in",
+      form.rememberMe,
+      () => this.authService.login(form.alias, form.password),
+      (user) => {
+        const url = form.originalUrl ?? `/feed/${user.alias}`;
+        this.view.navigateTo(url);
+      },
+    );
   }
 }
