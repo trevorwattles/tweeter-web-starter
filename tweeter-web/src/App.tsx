@@ -19,7 +19,41 @@ import { FollowerPresenter } from "./presenter/FollowerPresenter";
 import { FeedPresenter } from "./presenter/FeedPresenter";
 import { StoryPresenter } from "./presenter/StoryPresenter";
 import { Status, User } from "tweeter-shared";
-import { PagedItemView } from "./presenter/PagedItemPresenter";
+import {
+  PagedItemView,
+  PagedItemPresenter,
+} from "./presenter/PagedItemPresenter";
+import { Service } from "./model.service/Service";
+
+// --- New Helper Component for Type Safety ---
+interface PagedRouteProps<
+  T,
+  S extends Service,
+  P extends PagedItemPresenter<T, S>,
+> {
+  path: string;
+  PresenterClass: new (view: PagedItemView<T>) => P;
+  render: (item: T, path: string) => JSX.Element;
+}
+
+const PagedRoute = <T, S extends Service, P extends PagedItemPresenter<T, S>>({
+  path,
+  PresenterClass,
+  render,
+}: PagedRouteProps<T, S, P>) => {
+  const { displayedUser } = useUserInfo();
+
+  return (
+    <ItemScroller
+      key={`${path}-${displayedUser!.alias}`}
+      featureURl={`/${path}`}
+      // TypeScript now correctly infers 'view' as PagedItemView<T>
+      presenterFactory={(view: PagedItemView<T>) => new PresenterClass(view)}
+      itemComponentFactory={(item: T) => render(item, `/${path}`)}
+    />
+  );
+};
+// --------------------------------------------
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -54,14 +88,6 @@ const AuthenticatedRoutes = () => {
     <UserItem user={item} featurePath={path} />
   );
 
-  // Configuration for paged routes to eliminate <Route> duplication
-  const pagedRoutes = [
-    { path: "feed", presenter: FeedPresenter, render: renderStatusItem },
-    { path: "story", presenter: StoryPresenter, render: renderStatusItem },
-    { path: "followees", presenter: FolloweePresenter, render: renderUserItem },
-    { path: "followers", presenter: FollowerPresenter, render: renderUserItem },
-  ];
-
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -69,24 +95,46 @@ const AuthenticatedRoutes = () => {
           index
           element={<Navigate to={`/feed/${displayedUser!.alias}`} />}
         />
-
-        {/* Dynamically generate all paged routes */}
-        {pagedRoutes.map(({ path, presenter, render }) => (
-          <Route
-            key={path}
-            path={`${path}/:displayedUser`}
-            element={
-              <ItemScroller
-                key={`${path}-${displayedUser!.alias}`}
-                featureURl={`/${path}`}
-                presenterFactory={(view: PagedItemView<any>) =>
-                  new presenter(view)
-                }
-                itemComponentFactory={(item) => render(item, `/${path}`)}
-              />
-            }
-          />
-        ))}
+        <Route
+          path="feed/:displayedUser"
+          element={
+            <PagedRoute
+              path="feed"
+              PresenterClass={FeedPresenter}
+              render={renderStatusItem}
+            />
+          }
+        />
+        <Route
+          path="story/:displayedUser"
+          element={
+            <PagedRoute
+              path="story"
+              PresenterClass={StoryPresenter}
+              render={renderStatusItem}
+            />
+          }
+        />
+        <Route
+          path="followees/:displayedUser"
+          element={
+            <PagedRoute
+              path="followees"
+              PresenterClass={FolloweePresenter}
+              render={renderUserItem}
+            />
+          }
+        />
+        <Route
+          path="followers/:displayedUser"
+          element={
+            <PagedRoute
+              path="followers"
+              PresenterClass={FollowerPresenter}
+              render={renderUserItem}
+            />
+          }
+        />
 
         <Route path="logout" element={<Navigate to="/login" />} />
         <Route
