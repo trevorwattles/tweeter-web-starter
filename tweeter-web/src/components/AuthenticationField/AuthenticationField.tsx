@@ -25,6 +25,7 @@ const AuthenticationField = (props: Props) => {
         type={props.type ?? "text"}
         className={`form-control ${props.inputClassName ?? ""}`.trim()}
         id={props.id}
+        aria-label={props.label}
         placeholder={props.placeholder ?? props.label}
         value={props.value}
         onKeyDown={loginOrReigisterOnEnter}

@@ -1,6 +1,6 @@
 import "./Login.css";
 import "bootstrap/dist/css/bootstrap.css";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import AuthenticationField from "../../AuthenticationField/AuthenticationField";
@@ -11,6 +11,7 @@ import { LoginPresenter } from "../../../presenter/LoginPresenter";
 
 interface Props {
   originalUrl?: string;
+  presenter?: LoginPresenter;
 }
 
 const Login = (props: Props) => {
@@ -30,10 +31,13 @@ const Login = (props: Props) => {
     navigateTo: navigate,
   };
 
-  const [presenter] = useState(() => new LoginPresenter(view));
+  const presenterRef = useRef<LoginPresenter | null>(null);
+  if (!presenterRef.current) {
+    presenterRef.current = props.presenter ?? new LoginPresenter(view);
+  }
 
   const checkSubmitButtonStatus = (): boolean => {
-    return presenter.checkSubmitButtonStatus({
+    return presenterRef.current!.checkSubmitButtonStatus({
       alias,
       password,
       rememberMe,
@@ -42,7 +46,7 @@ const Login = (props: Props) => {
   };
 
   const doLogin = async () => {
-    await presenter.doLogin({
+    await presenterRef.current!.doLogin({
       alias,
       password,
       rememberMe,
