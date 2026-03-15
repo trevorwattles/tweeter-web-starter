@@ -15,7 +15,7 @@ import { PostStatusPresenter } from "../../src/presenter/PostStatusPresenter";
 import { useUserInfo } from "../../src/components/userInfo/UserInfoHooks";
 import { AuthToken, User } from "tweeter-shared";
 
-// 1. Mock the hook using Jest as instructed
+// 1. Mock the hook using Jest
 jest.mock("../../src/components/userInfo/UserInfoHooks", () => ({
   ...jest.requireActual("../../src/components/userInfo/UserInfoHooks"),
   __esModule: true,
@@ -27,7 +27,6 @@ describe("PostStatus Component", () => {
   const mockAuthTokenInstance = new AuthToken("abc123", Date.now());
 
   beforeAll(() => {
-    // 2. Specify the values the hook returns
     (useUserInfo as jest.Mock).mockReturnValue({
       currentUser: mockUserInstance,
       authToken: mockAuthTokenInstance,
@@ -67,7 +66,6 @@ describe("PostStatus Component", () => {
     const mockPresenter = mock<PostStatusPresenter>();
     const mockPresenterInstance = instance(mockPresenter);
 
-    // Stub the button status check so the mock allows the button to be enabled
     when(
       mockPresenter.checkButtonStatus(anyString(), anything(), anything()),
     ).thenReturn(false);
@@ -80,7 +78,6 @@ describe("PostStatus Component", () => {
     await user.type(textArea, postText);
     await user.click(postStatusButton);
 
-    // Use deepEqual for the User and AuthToken objects to avoid reference equality issues
     verify(
       mockPresenter.submitPost(
         postText,
@@ -91,13 +88,8 @@ describe("PostStatus Component", () => {
   });
 });
 
-// Helper functions following your project's testing pattern
 function renderPostStatus(presenter?: PostStatusPresenter) {
-  return render(
-    // Note: Ensure your PostStatus.tsx is updated to accept the presenter prop:
-    // const [presenter] = useState(() => props.presenter ?? new PostStatusPresenter(view));
-    <PostStatus presenter={presenter} />,
-  );
+  return render(<PostStatus presenter={presenter} />);
 }
 
 function renderPostStatusAndGetElements(presenter?: PostStatusPresenter) {
