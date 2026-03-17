@@ -1,0 +1,3 @@
+{
+  "body": "{\"authToken\":\"test-auth-token\",\"user\":{\"_firstName\":\"Allen\",\"_lastName\":\"Anderson\",\"_alias\":\"@allen\",\"_imageUrl\":\"https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png\"}}"
+}

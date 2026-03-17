@@ -1,0 +1,10 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "tweeter-server-stack"
+s3_bucket = "tweeter-server-deployment-trevorwattles-us-west"
+s3_prefix = "tweeter-server-stack"
+region = "us-west-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

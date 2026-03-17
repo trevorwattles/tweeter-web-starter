@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Tweeter Server AWS SAM Template
+
+  '
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: nodejs22.x
+    Architectures:
+    - x86_64
+    Layers:
+    - Ref: NodeModulesLayer
+    Environment:
+      Variables:
+        NODE_OPTIONS: --enable-source-maps
+Resources:
+  TweeterApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      Cors:
+        AllowMethods: '''POST, GET, OPTIONS'''
+        AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+        AllowOrigin: '''*'''
+        MaxAge: '''600'''
+  NodeModulesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: tweeter-dependencies
+      Description: Dependencies for tweeter lambdas
+      ContentUri: ../../layer
+      CompatibleRuntimes:
+      - nodejs22.x
+      RetentionPolicy: Retain
+  GetFollowerCountFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetFollowerCountFunction
+      Handler: lambda/GetFollowerCountHandler.handler
+      Events:
+        GetFollowerCount:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /follower/count
+            Method: post
+    Metadata:
+      SamResourceId: GetFollowerCountFunction
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${TweeterApi}.execute-api.${AWS::Region}.amazonaws.com/dev/
