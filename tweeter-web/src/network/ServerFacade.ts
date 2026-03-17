@@ -1,4 +1,4 @@
-import { FollowerCountRequest, FollowerCountResponse, FolloweeCountRequest, FolloweeCountResponse, PagedUserItemRequest, PagedUserItemResponse, User } from "tweeter-shared";
+import { FollowerCountRequest, FollowerCountResponse, FolloweeCountRequest, FolloweeCountResponse, PagedUserItemRequest, PagedUserItemResponse, IsFollowerStatusRequest, IsFollowerStatusResponse, FollowRequest, FollowResponse, UnfollowRequest, UnfollowResponse, User } from "tweeter-shared";
 import { ClientCommunicator } from "./ClientCommunicator";
 
 export class ServerFacade {
@@ -56,6 +56,48 @@ export class ServerFacade {
 
         if (response.success) {
             return [response.items ?? [], response.hasMore];
+        } else {
+            console.error(response);
+            throw new Error(response.message ?? undefined);
+        }
+    }
+
+    public async getIsFollowerStatus(request: IsFollowerStatusRequest): Promise<boolean> {
+        const response = await this.clientCommunicator.doPost<IsFollowerStatusRequest, IsFollowerStatusResponse>(
+            request,
+            "/follower/status"
+        );
+
+        if (response.success) {
+            return response.isFollower;
+        } else {
+            console.error(response);
+            throw new Error(response.message ?? undefined);
+        }
+    }
+
+    public async follow(request: FollowRequest): Promise<[followerCount: number, followeeCount: number]> {
+        const response = await this.clientCommunicator.doPost<FollowRequest, FollowResponse>(
+            request,
+            "/follow"
+        );
+
+        if (response.success) {
+            return [response.followerCount, response.followeeCount];
+        } else {
+            console.error(response);
+            throw new Error(response.message ?? undefined);
+        }
+    }
+
+    public async unfollow(request: UnfollowRequest): Promise<[followerCount: number, followeeCount: number]> {
+        const response = await this.clientCommunicator.doPost<UnfollowRequest, UnfollowResponse>(
+            request,
+            "/unfollow"
+        );
+
+        if (response.success) {
+            return [response.followerCount, response.followeeCount];
         } else {
             console.error(response);
             throw new Error(response.message ?? undefined);

@@ -1,6 +1,6 @@
 import "isomorphic-fetch";
 import { ServerFacade } from "../../src/network/ServerFacade";
-import { FollowerCountRequest, User, PagedUserItemRequest } from "tweeter-shared";
+import { FollowerCountRequest, User, PagedUserItemRequest, IsFollowerStatusRequest, FollowRequest, UnfollowRequest } from "tweeter-shared";
 
 describe("ServerFacade", () => {
     let serverFacade: ServerFacade;
@@ -66,5 +66,50 @@ describe("ServerFacade", () => {
         expect(users.length).toBeGreaterThan(0);
         expect(hasMore).toBeDefined();
         console.log(`Loaded ${users.length} followees. Has more: ${hasMore}`);
+    });
+
+    it("should return the is follower status between two users", async () => {
+        const user = new User("Allen", "Anderson", "@allen", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+        const selectedUser = new User("Amy", "Ames", "@amy", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/daisy_duck.png");
+        
+        const request: IsFollowerStatusRequest = {
+            authToken: "test-auth-token",
+            user: user,
+            selectedUser: selectedUser
+        };
+
+        const isFollower = await serverFacade.getIsFollowerStatus(request);
+
+        expect(isFollower).toBeDefined();
+        console.log(`Is ${user.alias} a follower of ${selectedUser.alias}? ${isFollower}`);
+    });
+
+    it("should process a follow request and return updated counts", async () => {
+        const userToFollow = new User("Allen", "Anderson", "@allen", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+        
+        const request: FollowRequest = {
+            authToken: "test-auth-token",
+            userToFollow: userToFollow
+        };
+
+        const [followerCount, followeeCount] = await serverFacade.follow(request);
+
+        expect(followerCount).toBeGreaterThanOrEqual(0);
+        expect(followeeCount).toBeGreaterThanOrEqual(0);
+        console.log(`Followed ${userToFollow.alias}. New Follower Count: ${followerCount}, New Followee Count: ${followeeCount}`);
+    });
+    it("should process an unfollow request and return updated counts", async () => {
+        const userToUnfollow = new User("Allen", "Anderson", "@allen", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+        
+        const request: UnfollowRequest = {
+            authToken: "test-auth-token",
+            userToUnfollow: userToUnfollow
+        };
+
+        const [followerCount, followeeCount] = await serverFacade.unfollow(request);
+
+        expect(followerCount).toBeGreaterThanOrEqual(0);
+        expect(followeeCount).toBeGreaterThanOrEqual(0);
+        console.log(`Unfollowed ${userToUnfollow.alias}. New Follower Count: ${followerCount}, New Followee Count: ${followeeCount}`);
     });
 });

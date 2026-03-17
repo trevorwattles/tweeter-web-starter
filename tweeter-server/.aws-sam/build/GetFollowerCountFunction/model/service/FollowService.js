@@ -49,5 +49,43 @@ class FollowService {
             hasMore: hasMore
         };
     }
+    async getIsFollowerStatus(request) {
+        if (!request.user || !request.selectedUser) {
+            throw new Error("[Bad Request] missing required parameters");
+        }
+        const isFollower = await tweeter_shared_1.FakeData.instance.isFollower();
+        return {
+            success: true,
+            message: null,
+            isFollower: isFollower
+        };
+    }
+    async follow(request) {
+        if (!request.userToFollow) {
+            throw new Error("[Bad Request] missing required parameters");
+        }
+        // Return mocked updated counts (add 1 to followee logic, but FakeData isn't real anyway)
+        const followerCount = await tweeter_shared_1.FakeData.instance.getFollowerCount(request.userToFollow.alias);
+        const followeeCount = await tweeter_shared_1.FakeData.instance.getFolloweeCount(request.userToFollow.alias);
+        return {
+            success: true,
+            message: null,
+            followerCount: followerCount,
+            followeeCount: followeeCount
+        };
+    }
+    async unfollow(request) {
+        if (!request.userToUnfollow) {
+            throw new Error("[Bad Request] missing required parameters");
+        }
+        const followerCount = await tweeter_shared_1.FakeData.instance.getFollowerCount(request.userToUnfollow.alias);
+        const followeeCount = await tweeter_shared_1.FakeData.instance.getFolloweeCount(request.userToUnfollow.alias);
+        return {
+            success: true,
+            message: null,
+            followerCount: followerCount,
+            followeeCount: followeeCount
+        };
+    }
 }
 exports.FollowService = FollowService;

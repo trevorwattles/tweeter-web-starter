@@ -1,4 +1,4 @@
-import { FollowerCountRequest, FollowerCountResponse, FolloweeCountRequest, FolloweeCountResponse, PagedUserItemRequest, PagedUserItemResponse, FakeData } from "tweeter-shared";
+import { FollowerCountRequest, FollowerCountResponse, FolloweeCountRequest, FolloweeCountResponse, PagedUserItemRequest, PagedUserItemResponse, IsFollowerStatusRequest, IsFollowerStatusResponse, FollowRequest, FollowResponse, UnfollowRequest, UnfollowResponse, FakeData } from "tweeter-shared";
 
 export class FollowService {
     public async getFollowerCount(request: FollowerCountRequest): Promise<FollowerCountResponse> {
@@ -56,6 +56,53 @@ export class FollowService {
             message: null,
             items: items,
             hasMore: hasMore
+        };
+    }
+
+    public async getIsFollowerStatus(request: IsFollowerStatusRequest): Promise<IsFollowerStatusResponse> {
+        if (!request.user || !request.selectedUser) {
+            throw new Error("[Bad Request] missing required parameters");
+        }
+
+        const isFollower = await FakeData.instance.isFollower();
+
+        return {
+            success: true,
+            message: null,
+            isFollower: isFollower
+        };
+    }
+
+    public async follow(request: FollowRequest): Promise<FollowResponse> {
+        if (!request.userToFollow) {
+            throw new Error("[Bad Request] missing required parameters");
+        }
+
+        // Return mocked updated counts (add 1 to followee logic, but FakeData isn't real anyway)
+        const followerCount = await FakeData.instance.getFollowerCount(request.userToFollow.alias);
+        const followeeCount = await FakeData.instance.getFolloweeCount(request.userToFollow.alias);
+
+        return {
+            success: true,
+            message: null,
+            followerCount: followerCount,
+            followeeCount: followeeCount
+        };
+    }
+
+    public async unfollow(request: UnfollowRequest): Promise<UnfollowResponse> {
+        if (!request.userToUnfollow) {
+            throw new Error("[Bad Request] missing required parameters");
+        }
+
+        const followerCount = await FakeData.instance.getFollowerCount(request.userToUnfollow.alias);
+        const followeeCount = await FakeData.instance.getFolloweeCount(request.userToUnfollow.alias);
+
+        return {
+            success: true,
+            message: null,
+            followerCount: followerCount,
+            followeeCount: followeeCount
         };
     }
 }

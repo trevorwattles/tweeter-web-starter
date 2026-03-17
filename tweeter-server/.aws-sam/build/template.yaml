@@ -93,6 +93,51 @@ Resources:
             Method: post
     Metadata:
       SamResourceId: GetFolloweesFunction
+  GetIsFollowerStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetIsFollowerStatusFunction
+      Handler: lambda/GetIsFollowerStatusHandler.handler
+      Events:
+        GetIsFollowerStatus:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /follower/status
+            Method: post
+    Metadata:
+      SamResourceId: GetIsFollowerStatusFunction
+  FollowFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: FollowFunction
+      Handler: lambda/FollowHandler.handler
+      Events:
+        Follow:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /follow
+            Method: post
+    Metadata:
+      SamResourceId: FollowFunction
+  UnfollowFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: UnfollowFunction
+      Handler: lambda/UnfollowHandler.handler
+      Events:
+        Unfollow:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /unfollow
+            Method: post
+    Metadata:
+      SamResourceId: UnfollowFunction
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
