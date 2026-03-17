@@ -1,6 +1,6 @@
 import "isomorphic-fetch";
 import { ServerFacade } from "../../src/network/ServerFacade";
-import { FollowerCountRequest, User } from "tweeter-shared";
+import { FollowerCountRequest, User, PagedUserItemRequest } from "tweeter-shared";
 
 describe("ServerFacade", () => {
     let serverFacade: ServerFacade;
@@ -21,5 +21,50 @@ describe("ServerFacade", () => {
 
         expect(followerCount).toBeGreaterThanOrEqual(0);
         console.log(`Follower count for ${user.alias}: ${followerCount}`);
+    });
+    it("should return the followee count for a user", async () => {
+        const user = new User("Allen", "Anderson", "@allen", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+        
+        const request: FollowerCountRequest = {
+            authToken: "test-auth-token",
+            user: user,
+        };
+
+        const followeeCount = await serverFacade.getFolloweeCount(request);
+
+        expect(followeeCount).toBeGreaterThanOrEqual(0);
+        console.log(`Followee count for ${user.alias}: ${followeeCount}`);
+    });
+
+    it("should return a page of followers for a user", async () => {
+        const request: PagedUserItemRequest = {
+            authToken: "test-auth-token",
+            userAlias: "@allen",
+            pageSize: 10,
+            lastItem: null,
+        };
+
+        const [users, hasMore] = await serverFacade.loadMoreFollowers(request);
+
+        expect(users).toBeDefined();
+        expect(users.length).toBeGreaterThan(0);
+        expect(hasMore).toBeDefined();
+        console.log(`Loaded ${users.length} followers. Has more: ${hasMore}`);
+    });
+
+    it("should return a page of followees for a user", async () => {
+        const request: PagedUserItemRequest = {
+            authToken: "test-auth-token",
+            userAlias: "@allen",
+            pageSize: 10,
+            lastItem: null,
+        };
+
+        const [users, hasMore] = await serverFacade.loadMoreFollowees(request);
+
+        expect(users).toBeDefined();
+        expect(users.length).toBeGreaterThan(0);
+        expect(hasMore).toBeDefined();
+        console.log(`Loaded ${users.length} followees. Has more: ${hasMore}`);
     });
 });

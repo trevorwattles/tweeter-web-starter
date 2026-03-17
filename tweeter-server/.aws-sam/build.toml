@@ -7,6 +7,6 @@ architecture = "x86_64"
 handler = "lambda/GetFollowerCountHandler.handler"
 manifest_hash = ""
 packagetype = "Zip"
-functions = ["GetFollowerCountFunction"]
+functions = ["GetFollowerCountFunction", "GetFolloweeCountFunction", "GetFollowersFunction", "GetFolloweesFunction"]
 
 [layer_build_definitions]

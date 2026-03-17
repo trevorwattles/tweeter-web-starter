@@ -1,4 +1,4 @@
-import { AuthToken, User, FakeData, FollowerCountRequest } from "tweeter-shared";
+import { AuthToken, User, FakeData, FollowerCountRequest, FolloweeCountRequest, PagedUserItemRequest } from "tweeter-shared";
 import { Service } from "./Service";
 import { ServerFacade } from "../network/ServerFacade";
 
@@ -9,8 +9,13 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: User | null,
   ): Promise<[User[], boolean]> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
+    const request = {
+      authToken: authToken.token,
+      userAlias: userAlias,
+      pageSize: pageSize,
+      lastItem: lastItem
+    } as PagedUserItemRequest;
+    return await new ServerFacade().loadMoreFollowees(request);
   }
 
   public async loadMoreFollowers(
@@ -19,8 +24,13 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: User | null,
   ): Promise<[User[], boolean]> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
+    const request = {
+      authToken: authToken.token,
+      userAlias: userAlias,
+      pageSize: pageSize,
+      lastItem: lastItem
+    } as PagedUserItemRequest;
+    return await new ServerFacade().loadMoreFollowers(request);
   }
 
   public async getIsFollowerStatus(
@@ -36,8 +46,11 @@ export class FollowService implements Service {
     authToken: AuthToken,
     user: User,
   ): Promise<number> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getFolloweeCount(user.alias);
+    const request = {
+      authToken: authToken.token,
+      user: user,
+    } as FolloweeCountRequest;
+    return await new ServerFacade().getFolloweeCount(request);
   }
 
     public async getFollowerCount(

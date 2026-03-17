@@ -53,6 +53,45 @@ Resources:
             Path: /follower/count
             Method: post
 
+  GetFolloweeCountFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/GetFolloweeCountHandler.handler
+      Events:
+        GetFolloweeCount:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /followee/count
+            Method: post
+
+  GetFollowersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/GetFollowersHandler.handler
+      Events:
+        GetFollowers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /follower/list
+            Method: post
+
+  GetFolloweesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/GetFolloweesHandler.handler
+      Events:
+        GetFollowees:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /followee/list
+            Method: post
+
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
