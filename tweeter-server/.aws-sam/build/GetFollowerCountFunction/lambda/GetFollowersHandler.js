@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handler = void 0;
-const tweeter_shared_1 = require("tweeter-shared");
 const FollowService_1 = require("../model/service/FollowService");
+const DynamoDAOFactory_1 = require("../model/dao/dynamodb/DynamoDAOFactory");
 const handler = async (event) => {
-    const followService = new FollowService_1.FollowService();
+    const factory = new DynamoDAOFactory_1.DynamoDAOFactory();
+    const followService = new FollowService_1.FollowService(factory);
     let request;
     if (event.body) {
         request = JSON.parse(event.body);
@@ -12,23 +13,32 @@ const handler = async (event) => {
     else {
         request = event;
     }
-    let deserializedLastItem = null;
-    if (request.lastItem) {
-        deserializedLastItem = tweeter_shared_1.User.fromJson(JSON.stringify(request.lastItem));
+    try {
+        const response = await followService.loadMoreFollowers(request);
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+            body: JSON.stringify(response)
+        };
     }
-    const requestWithObject = {
-        ...request,
-        lastItem: deserializedLastItem
-    };
-    const response = await followService.loadMoreFollowers(requestWithObject);
-    return {
-        statusCode: 200,
-        headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-        },
-        body: JSON.stringify(response)
-    };
+    catch (e) {
+        return {
+            statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+            body: JSON.stringify({
+                success: false,
+                message: e.message,
+                errorMessage: e.message
+            })
+        };
+    }
 };
 exports.handler = handler;

@@ -5,7 +5,7 @@ Description: 'Tweeter Server AWS SAM Template
   '
 Globals:
   Function:
-    Timeout: 10
+    Timeout: 30
     Runtime: nodejs22.x
     Architectures:
     - x86_64
@@ -33,11 +33,103 @@ Resources:
       CompatibleRuntimes:
       - nodejs22.x
       RetentionPolicy: Retain
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: users
+      AttributeDefinitions:
+      - AttributeName: alias
+        AttributeType: S
+      KeySchema:
+      - AttributeName: alias
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
+  AuthTokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: authTokens
+      AttributeDefinitions:
+      - AttributeName: token
+        AttributeType: S
+      KeySchema:
+      - AttributeName: token
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
+  FollowsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: follows
+      AttributeDefinitions:
+      - AttributeName: follower_handle
+        AttributeType: S
+      - AttributeName: followee_handle
+        AttributeType: S
+      KeySchema:
+      - AttributeName: follower_handle
+        KeyType: HASH
+      - AttributeName: followee_handle
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
+      GlobalSecondaryIndexes:
+      - IndexName: follows_index
+        KeySchema:
+        - AttributeName: followee_handle
+          KeyType: HASH
+        - AttributeName: follower_handle
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 4
+          WriteCapacityUnits: 4
+  StoriesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: stories
+      AttributeDefinitions:
+      - AttributeName: sender_alias
+        AttributeType: S
+      - AttributeName: timestamp
+        AttributeType: N
+      KeySchema:
+      - AttributeName: sender_alias
+        KeyType: HASH
+      - AttributeName: timestamp
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
+  FeedsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: feeds
+      AttributeDefinitions:
+      - AttributeName: receiver_alias
+        AttributeType: S
+      - AttributeName: timestamp
+        AttributeType: N
+      KeySchema:
+      - AttributeName: receiver_alias
+        KeyType: HASH
+      - AttributeName: timestamp
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
   GetFollowerCountFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: GetFollowerCountFunction
       Handler: lambda/GetFollowerCountHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetFollowerCount:
           Type: Api
@@ -53,6 +145,9 @@ Resources:
     Properties:
       CodeUri: GetFolloweeCountFunction
       Handler: lambda/GetFolloweeCountHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetFolloweeCount:
           Type: Api
@@ -68,6 +163,9 @@ Resources:
     Properties:
       CodeUri: GetFollowersFunction
       Handler: lambda/GetFollowersHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetFollowers:
           Type: Api
@@ -83,6 +181,9 @@ Resources:
     Properties:
       CodeUri: GetFolloweesFunction
       Handler: lambda/GetFolloweesHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetFollowees:
           Type: Api
@@ -98,6 +199,9 @@ Resources:
     Properties:
       CodeUri: GetIsFollowerStatusFunction
       Handler: lambda/GetIsFollowerStatusHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetIsFollowerStatus:
           Type: Api
@@ -113,6 +217,9 @@ Resources:
     Properties:
       CodeUri: FollowFunction
       Handler: lambda/FollowHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         Follow:
           Type: Api
@@ -128,6 +235,9 @@ Resources:
     Properties:
       CodeUri: UnfollowFunction
       Handler: lambda/UnfollowHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         Unfollow:
           Type: Api
@@ -143,6 +253,9 @@ Resources:
     Properties:
       CodeUri: PostStatusFunction
       Handler: lambda/PostStatusHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         PostStatus:
           Type: Api
@@ -158,6 +271,9 @@ Resources:
     Properties:
       CodeUri: GetStoryFunction
       Handler: lambda/GetStoryHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetStory:
           Type: Api
@@ -173,6 +289,9 @@ Resources:
     Properties:
       CodeUri: GetFeedFunction
       Handler: lambda/GetFeedHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetFeed:
           Type: Api
@@ -188,6 +307,9 @@ Resources:
     Properties:
       CodeUri: LoginFunction
       Handler: lambda/LoginHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         Login:
           Type: Api
@@ -203,6 +325,9 @@ Resources:
     Properties:
       CodeUri: RegisterFunction
       Handler: lambda/RegisterHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         Register:
           Type: Api
@@ -218,6 +343,9 @@ Resources:
     Properties:
       CodeUri: GetUserFunction
       Handler: lambda/GetUserHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         GetUser:
           Type: Api
@@ -233,6 +361,9 @@ Resources:
     Properties:
       CodeUri: LogoutFunction
       Handler: lambda/LogoutHandler.handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
       Events:
         Logout:
           Type: Api
