@@ -138,6 +138,111 @@ Resources:
             Method: post
     Metadata:
       SamResourceId: UnfollowFunction
+  PostStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: PostStatusFunction
+      Handler: lambda/PostStatusHandler.handler
+      Events:
+        PostStatus:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /status/post
+            Method: post
+    Metadata:
+      SamResourceId: PostStatusFunction
+  GetStoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetStoryFunction
+      Handler: lambda/GetStoryHandler.handler
+      Events:
+        GetStory:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /story/list
+            Method: post
+    Metadata:
+      SamResourceId: GetStoryFunction
+  GetFeedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetFeedFunction
+      Handler: lambda/GetFeedHandler.handler
+      Events:
+        GetFeed:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /feed/list
+            Method: post
+    Metadata:
+      SamResourceId: GetFeedFunction
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: LoginFunction
+      Handler: lambda/LoginHandler.handler
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /auth/login
+            Method: post
+    Metadata:
+      SamResourceId: LoginFunction
+  RegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: RegisterFunction
+      Handler: lambda/RegisterHandler.handler
+      Events:
+        Register:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /auth/register
+            Method: post
+    Metadata:
+      SamResourceId: RegisterFunction
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetUserFunction
+      Handler: lambda/GetUserHandler.handler
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /user/get
+            Method: post
+    Metadata:
+      SamResourceId: GetUserFunction
+  LogoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: LogoutFunction
+      Handler: lambda/LogoutHandler.handler
+      Events:
+        Logout:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: TweeterApi
+            Path: /auth/logout
+            Method: post
+    Metadata:
+      SamResourceId: LogoutFunction
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL

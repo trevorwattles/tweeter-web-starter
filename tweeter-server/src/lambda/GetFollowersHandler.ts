@@ -1,4 +1,4 @@
-import { PagedUserItemRequest, PagedUserItemResponse } from "tweeter-shared";
+import { PagedUserItemRequest, PagedUserItemResponse, User } from "tweeter-shared";
 import { FollowService } from "../model/service/FollowService";
 
 export const handler = async (event: any): Promise<PagedUserItemResponse> => {
@@ -10,8 +10,18 @@ export const handler = async (event: any): Promise<PagedUserItemResponse> => {
     } else {
         request = event;
     }
+
+    let deserializedLastItem = null;
+    if (request.lastItem) {
+        deserializedLastItem = User.fromJson(JSON.stringify(request.lastItem));
+    }
     
-    const response = await followService.loadMoreFollowers(request);
+    const requestWithObject = {
+        ...request,
+        lastItem: deserializedLastItem
+    };
+    
+    const response = await followService.loadMoreFollowers(requestWithObject);
     
     return {
         statusCode: 200,

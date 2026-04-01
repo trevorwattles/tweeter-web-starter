@@ -23,3 +23,9 @@ yarn-debug.log*
 yarn-error.log*
 
 /dist
+
+# Server build outputs
+tweeter-server/dist/
+tweeter-server/.aws-sam/
+tweeter-shared/dist/tweeter-milestone3-submission.zip
+tweeter-milestone3-submission.zip

@@ -1,9 +1,9 @@
-import { PagedUserItemRequest, PagedUserItemResponse, User } from "tweeter-shared";
-import { FollowService } from "../model/service/FollowService";
+import { PagedStatusItemRequest, PagedStatusItemResponse, Status } from "tweeter-shared";
+import { StatusService } from "../model/service/StatusService";
 
-export const handler = async (event: any): Promise<PagedUserItemResponse> => {
-    const followService = new FollowService();
-    let request: PagedUserItemRequest;
+export const handler = async (event: any): Promise<PagedStatusItemResponse> => {
+    const statusService = new StatusService();
+    let request: PagedStatusItemRequest;
     
     if (event.body) {
         request = JSON.parse(event.body);
@@ -13,7 +13,7 @@ export const handler = async (event: any): Promise<PagedUserItemResponse> => {
 
     let deserializedLastItem = null;
     if (request.lastItem) {
-        deserializedLastItem = User.fromJson(JSON.stringify(request.lastItem));
+        deserializedLastItem = Status.fromJson(JSON.stringify(request.lastItem));
     }
     
     const requestWithObject = {
@@ -21,7 +21,7 @@ export const handler = async (event: any): Promise<PagedUserItemResponse> => {
         lastItem: deserializedLastItem
     };
     
-    const response = await followService.loadMoreFollowees(requestWithObject);
+    const response = await statusService.loadMoreStoryItems(requestWithObject);
     
     return {
         statusCode: 200,

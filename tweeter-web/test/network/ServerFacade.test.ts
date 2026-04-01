@@ -1,6 +1,6 @@
 import "isomorphic-fetch";
 import { ServerFacade } from "../../src/network/ServerFacade";
-import { FollowerCountRequest, User, PagedUserItemRequest, IsFollowerStatusRequest, FollowRequest, UnfollowRequest } from "tweeter-shared";
+import { FollowerCountRequest, User, PagedUserItemRequest, IsFollowerStatusRequest, FollowRequest, UnfollowRequest, PostStatusRequest, Status, PagedStatusItemRequest, LoginRequest, RegisterRequest, UserRequest, LogoutRequest } from "tweeter-shared";
 
 describe("ServerFacade", () => {
     let serverFacade: ServerFacade;
@@ -111,5 +111,116 @@ describe("ServerFacade", () => {
         expect(followerCount).toBeGreaterThanOrEqual(0);
         expect(followeeCount).toBeGreaterThanOrEqual(0);
         console.log(`Unfollowed ${userToUnfollow.alias}. New Follower Count: ${followerCount}, New Followee Count: ${followeeCount}`);
+    });
+
+    it("should successfully post a status", async () => {
+        const user = new User("Allen", "Anderson", "@allen", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+        const status = new Status("Test post from integration test", user, Date.now());
+        
+        const request: PostStatusRequest = {
+            authToken: "test-auth-token",
+            newStatus: status
+        };
+
+        await expect(serverFacade.postStatus(request)).resolves.not.toThrow();
+        console.log(`Successfully posted status: "${status.post}"`);
+    });
+
+    it("should return a page of story items for a user", async () => {
+        const request: PagedStatusItemRequest = {
+            authToken: "test-auth-token",
+            userAlias: "@allen",
+            pageSize: 10,
+            lastItem: null,
+        };
+
+        const [statuses, hasMore] = await serverFacade.loadMoreStoryItems(request);
+
+        expect(statuses).toBeDefined();
+        expect(statuses.length).toBeGreaterThan(0);
+        expect(hasMore).toBeDefined();
+        console.log(`Loaded ${statuses.length} story items. Has more: ${hasMore}`);
+    });
+
+    it("should return a page of feed items for a user", async () => {
+        const request: PagedStatusItemRequest = {
+            authToken: "test-auth-token",
+            userAlias: "@allen",
+            pageSize: 10,
+            lastItem: null,
+        };
+
+        const [statuses, hasMore] = await serverFacade.loadMoreFeedItems(request);
+
+        expect(statuses).toBeDefined();
+        expect(statuses.length).toBeGreaterThan(0);
+        expect(hasMore).toBeDefined();
+        console.log(`Loaded ${statuses.length} feed items. Has more: ${hasMore}`);
+    });
+
+    it("should login a user and return user and auth token", async () => {
+        const request: LoginRequest = {
+            authToken: "",
+            alias: "@allen",
+            password: "password",
+        };
+
+        const [user, authToken] = await serverFacade.login(request);
+
+        expect(user).toBeDefined();
+        expect(user.firstName).toBe("Allen");
+        expect(user.lastName).toBe("Anderson");
+        expect(authToken).toBeDefined();
+        expect(authToken.token).toBeDefined();
+        console.log(`Logged in as ${user.firstName} ${user.lastName} (${user.alias}). Token: ${authToken.token}`);
+    });
+
+    it("should register a user and return user and auth token", async () => {
+        const request: RegisterRequest = {
+            authToken: "",
+            firstName: "Allen",
+            lastName: "Anderson",
+            alias: "@allen",
+            password: "password",
+            imageStringBase64: "base64encodedimage",
+            imageFileExtension: "png"
+        };
+
+        const [user, authToken] = await serverFacade.register(request);
+
+        expect(user).toBeDefined();
+        expect(user.firstName).toBe("Allen");
+        expect(user.lastName).toBe("Anderson");
+        expect(authToken).toBeDefined();
+        expect(authToken.token).toBeDefined();
+        console.log(`Registered and logged in as ${user.firstName} ${user.lastName} (${user.alias}). Token: ${authToken.token}`);
+    });
+
+    it("should get a user by alias", async () => {
+        const request: UserRequest = {
+            authToken: "test-auth-token",
+            alias: "@allen"
+        };
+
+        const user = await serverFacade.getUser(request);
+
+        expect(user).toBeDefined();
+        expect(user).not.toBeNull();
+        if (user) {
+            expect(user.firstName).toBe("Allen");
+            expect(user.lastName).toBe("Anderson");
+            expect(user.alias).toBe("@allen");
+            console.log(`Successfully retrieved user: ${user.firstName} ${user.lastName} (${user.alias})`);
+        }
+    });
+
+    it("should logout a user", async () => {
+        const request: LogoutRequest = {
+            authToken: "test-auth-token"
+        };
+
+        // If this doesn't throw, it was successful
+        await expect(serverFacade.logout(request)).resolves.not.toThrow();
+        console.log(`Successfully logged out.`);
     });
 });

@@ -131,6 +131,97 @@ Resources:
             Path: /unfollow
             Method: post
 
+  PostStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/PostStatusHandler.handler
+      Events:
+        PostStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /status/post
+            Method: post
+
+  GetStoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/GetStoryHandler.handler
+      Events:
+        GetStory:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /story/list
+            Method: post
+
+  GetFeedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/GetFeedHandler.handler
+      Events:
+        GetFeed:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /feed/list
+            Method: post
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/LoginHandler.handler
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /auth/login
+            Method: post
+
+  RegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/RegisterHandler.handler
+      Events:
+        Register:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /auth/register
+            Method: post
+
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/GetUserHandler.handler
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /user/get
+            Method: post
+
+  LogoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: lambda/LogoutHandler.handler
+      Events:
+        Logout:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TweeterApi
+            Path: /auth/logout
+            Method: post
+
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
